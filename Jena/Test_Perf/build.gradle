@@ -11,10 +11,10 @@ repositories {
 // In this section you declare the dependencies for your production and test code
 dependencies {
 
-    implementation 'org.apache.jena:apache-jena-libs:3.10.0'
+    implementation 'org.apache.jena:apache-jena-libs:4.5.0'
 
-    implementation files('lib/virtjdbc4_2.jar')
-    implementation files('lib/virt_jena3.jar')
+    implementation files('lib/virtjdbc4_3.jar')
+    implementation files('lib/virt_jena4.jar')
 }
 
 run {

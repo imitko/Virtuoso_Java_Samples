@@ -1,0 +1,10 @@
+drop table tpcd..customer;
+drop table tpcd..history;
+drop table tpcd..lineitem;
+drop table tpcd..nation;
+drop table tpcd..orders;
+drop table tpcd..part;
+drop table tpcd..partsupp;
+drop table tpcd..region;
+drop table tpcd..supplier;
+delete from sys_procedures where p_name like 'TPCD%';

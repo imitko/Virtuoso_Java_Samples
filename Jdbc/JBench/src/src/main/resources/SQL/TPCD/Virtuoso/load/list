@@ -1,0 +1,6 @@
+!load_nation_and_region.sql
+!load_customer_script.sql
+!load_part_script.sql
+!load_partsupp_script.sql
+!load_supplier_script.sql
+!load_orders_script.sql

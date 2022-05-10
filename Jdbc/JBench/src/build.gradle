@@ -1,0 +1,37 @@
+apply plugin: 'application'
+mainClassName = 'BenchMain'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    mavenCentral()
+}
+
+jar {
+  baseName = 'jbench'
+  manifest {
+    attributes(
+      'Main-Class': 'BenchMain'
+    )
+  }
+}
+
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    implementation files('../virtjdbc4_2.jar')
+}
+
+task copyLibs {
+   doLast{  
+      println('------COPY JARS----------')
+      copy {
+        from './build/libs'
+        into '../'
+      }
+   }
+}
+
+assemble.finalizedBy copyLibs
+

@@ -190,10 +190,7 @@ public class BenchMain extends JApplet {
                        nTellerCount = Integer.parseInt(createTokens.nextToken());
                    if(createTokens.hasMoreTokens())
                        nAccountCount = Integer.parseInt(createTokens.nextToken());
-//FIXME               pane.setMaxTableLimits(nBranchCount,nTellerCount,nAccountCount);
-//FIXME               pane.doCreateTables(true,true,true,true,true,true,true,true);
                }
-//FIXME            if(strCreateProc != null) pane.doLoadProcedures(pane.pool.getConnection(0));
 
                if(strRunTests != null) {
                    int nNumThreads = 1, nNumRuns = 100, nTestType = 1, nWaitMinutes = -1;
@@ -211,35 +208,8 @@ public class BenchMain extends JApplet {
                        nTestType = Integer.parseInt(runTokens.nextToken());
                    if(runTokens.hasMoreTokens())
                        nWaitMinutes = Integer.parseInt(runTokens.nextToken());
-//FIXME               pane.doRunTests(nNumThreads,nNumRuns,nWaitMinutes,nTestType == 1,nTestType == 2,nTestType == 3,bTrans,bQuery);
                }
-//FIXME            if(strCleanUp != null) pane.doCleanUp(pane.pool.getConnection(0), true,true,true,true);
             if(strDropResult != null) pane.doDropResult();
-//FIXME            if(strCreateResult != null) pane.doCreateResult();
-//========TPCCTest
-//            if(strTPCCLoad != null) {
-//               int n_ware = 1;
-//               StringTokenizer runTokens = new StringTokenizer(strTPCCLoad,",;/");
-//               //					System.out.println("tpcload = " + strTPCCLoad);
-//               if(runTokens.hasMoreTokens()) {
-//                  n_ware = Integer.valueOf(runTokens.nextToken()).intValue();
-//               //						System.out.println("N_ware = " + n_ware);
-//               }
-//               pane.doTpccLoadData(pane.pool.getConnection(0), n_ware,Bench.TPCCBench.DIST_PER_WARE,Bench.TPCCBench.CUST_PER_DIST,Bench.TPCCBench.MAXITEMS,Bench.TPCCBench.ORD_PER_DIST);
-//            }
-//            if(strTPCCRun != null) {
-//               int n_rounds = 1, local_w_id = 1, n_ware = 1, n_threads = 1;
-//               StringTokenizer runTokens = new StringTokenizer(strTPCCRun,",;/");
-//               if(runTokens.hasMoreTokens())
-//                  n_rounds = Integer.valueOf(runTokens.nextToken()).intValue();
-//               if(runTokens.hasMoreTokens())
-//                  local_w_id = Integer.valueOf(runTokens.nextToken()).intValue();
-//               if(runTokens.hasMoreTokens())
-//                  n_ware = Integer.valueOf(runTokens.nextToken()).intValue();
-//               if(runTokens.hasMoreTokens())
-//                  n_threads = Integer.valueOf(runTokens.nextToken()).intValue();
-//               pane.doTpccRun(n_threads, n_rounds,local_w_id,n_ware);
-//            }
             pane.closeConnection(true);
             System.exit(0);
          }

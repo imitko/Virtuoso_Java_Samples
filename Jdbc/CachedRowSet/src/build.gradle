@@ -1,0 +1,36 @@
+apply plugin: 'application'
+mainClassName = 'CachedRowSet'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    mavenCentral()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    implementation files('../virtjdbc4_2.jar')
+}
+
+jar {
+  baseName = mainClassName
+  manifest {
+    attributes(
+      'Main-Class': mainClassName
+    )
+  }
+}
+
+task copyLibs {
+   doLast{  
+      println('------COPY JARS----------')
+      copy {
+        from './build/libs'
+        into '../'
+      }
+   }
+}
+
+assemble.finalizedBy copyLibs
+

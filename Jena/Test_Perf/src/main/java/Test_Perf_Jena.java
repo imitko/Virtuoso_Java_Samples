@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.util.iterator.*;
 import org.apache.jena.graph.*;
 import org.apache.jena.shared.*;
+import org.apache.jena.datatypes.xsd.XSDDatatype;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,6 +20,7 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtModel;
 import virtuoso.jena.driver.VirtDataset;
 import virtuoso.jena.driver.VirtIsolationLevel;
+import com.thedeanda.lorem.*;
 
 public class Test_Perf_Jena extends Thread {
 
@@ -42,6 +44,8 @@ public class Test_Perf_Jena extends Thread {
 
     public static VirtIsolationLevel isolation = VirtIsolationLevel.REPEATABLE_READ;
     public static int concurrency = VirtGraph.CONCUR_DEFAULT;
+    static boolean add_label = true;
+    static boolean clean = true;
 
     char pid;
     int id;
@@ -129,7 +133,10 @@ public class Test_Perf_Jena extends Thread {
           vds = new VirtDataset("jdbc:virtuoso://" + instance + ":" + port, uid, pwd);
           vds.setIsolationLevel(isolation);
           Model vm = vds.getNamedModel(graph_name);
-          vm.removeAll();
+          if (clean) {
+          log ("Cleaning the existing test data.");
+              vm.removeAll();
+          }
         } catch (Exception e) {
           log(e.toString());
           return;
@@ -139,6 +146,8 @@ public class Test_Perf_Jena extends Thread {
               vds.close();
             } catch(Exception e) {}
         }
+
+        Instant start = Instant.now();
 
         Test_Perf_Jena[] tests = new Test_Perf_Jena[max_threads];
 
@@ -159,14 +168,31 @@ public class Test_Perf_Jena extends Thread {
           log(e.toString());
         }
 
+        Instant finish = Instant.now();
+        long timeElapsed = Duration.between(start, finish).toMillis()/1000;
+        log ("");
+        log ("Start time: " + start);
+        log ("End time: " + finish);
+        log ("Elapsed time: " + timeElapsed + " sec.");
+
     }
 
 
     public static int rnd_skill(){
       int max_rnd = 100;
-      return (int) (Math.random() * max_rnd); 
+      return (int) (Math.random() * max_rnd);
     }
-    
+
+    public static int rnd_age(){
+      int max_rnd = 55;
+      return (int) (Math.random() * max_rnd) + 15;
+    }
+
+    public static double rnd_salary(){
+      int min_rnd = 20000;
+      return (double) (Math.random() * min_rnd) + 10000;
+    }
+
 
     public Test_Perf_Jena(char _pid) {
       this.pid = _pid;
@@ -176,6 +202,7 @@ public class Test_Perf_Jena extends Thread {
 
     public Model genModel() {
         Model m = ModelFactory.createDefaultModel();
+        Lorem lorem = LoremIpsum.getInstance();
 
         try {
 /**
@@ -185,42 +212,82 @@ http://www.beamery.com/person_A http://www.beamery.com/hasCountry http://www.bea
 http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_A.
 http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_B.
 http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_C.
-
 **/
           int i = 0;
 
-          Property np1 = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-          Property np2 = ResourceFactory.createProperty("http://www.beamery.com/lastLocationUpdate");
-          Property np3 = ResourceFactory.createProperty("http://www.beamery.com/hasCountry");
-          Property np4 = ResourceFactory.createProperty("http://www.beamery.com/hasSkill");
+          Property rdfType = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+          Property locUpdate = ResourceFactory.createProperty("http://www.beamery.com/lastLocationUpdate");
+          Property hasCountry = ResourceFactory.createProperty("http://www.beamery.com/hasCountry");
+          Property hasSkill = ResourceFactory.createProperty("http://www.beamery.com/hasSkill");
+          Property foaf_name = ResourceFactory.createProperty("http://xmlns.com/foaf/0.1/name");
+          Property foaf_age = ResourceFactory.createProperty("http://xmlns.com/foaf/0.1/age");
+          Property dct = ResourceFactory.createProperty("http://purl.org/dc/terms/description");
+          Property targetSalary = ResourceFactory.createProperty("http://www.beamery.com/targetSalary");
+          Property isActive = ResourceFactory.createProperty("http://www.beamery.com/isActive");
+          Property rdfsLabel = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 
-          Resource no1 = ResourceFactory.createResource("http://www.beamery.com/person");
-          Resource no2 = ResourceFactory.createResource("\""+ LocalDate.now() +"\"^^http://www.w3.org/2001/XMLSchema#date");
+          Resource personType = ResourceFactory.createResource("http://www.beamery.com/person");
+          Literal currDate = ResourceFactory.createTypedLiteral(LocalDateTime.now().toString(), XSDDatatype.XSDdateTime);
 
-          while(i < chunk_size) 
+          while(i < chunk_size)
           {
-            Resource ns = ResourceFactory.createResource("http://www.beamery.com/person_"+pid+"_"+id);
+            int skill_id;
+            Resource person = ResourceFactory.createResource("http://www.beamery.com/person_"+pid+"_"+id);
+            Literal personName = ResourceFactory.createStringLiteral(lorem.getName()); // + " " + lorem.getLastName());
+            //Literal personName = ResourceFactory.createStringLiteral("Person_"+pid+"_"+id);
+            Literal age = ResourceFactory.createTypedLiteral (rnd_age());
+            Literal salary = ResourceFactory.createTypedLiteral (rnd_salary());
+            Literal active = ResourceFactory.createTypedLiteral ((id % 5 != 0) ? true : false);
+            Literal resume = ResourceFactory.createTypedLiteral (lorem.getParagraphs(2,4));
             id++;
 
-            Resource no3 = ResourceFactory.createResource("http://www.beamery.com/country_"+pid);
-            Resource no4 = ResourceFactory.createResource("http://www.beamery.com/skill_A"+rnd_skill());
-            Resource no5 = ResourceFactory.createResource("http://www.beamery.com/skill_B"+rnd_skill());
-            Resource no6 = ResourceFactory.createResource("http://www.beamery.com/skill_C"+rnd_skill());
-            Resource no7 = ResourceFactory.createResource("http://www.beamery.com/skill_D"+rnd_skill());
-            Resource no8 = ResourceFactory.createResource("http://www.beamery.com/skill_E"+rnd_skill());
+            Resource country = ResourceFactory.createResource("http://www.beamery.com/country/"+lorem.getCountry().replaceAll("\\s", "%20"));
 
-            m.add(ResourceFactory.createStatement(ns, np1, no1)); i++;
-            m.add(ResourceFactory.createStatement(ns, np2, no2)); i++;
-            m.add(ResourceFactory.createStatement(ns, np3, no3)); i++;
-            m.add(ResourceFactory.createStatement(ns, np4, no4)); i++;
-            m.add(ResourceFactory.createStatement(ns, np4, no5)); i++;
-            m.add(ResourceFactory.createStatement(ns, np4, no6)); i++;
-            m.add(ResourceFactory.createStatement(ns, np4, no7)); i++;
-            m.add(ResourceFactory.createStatement(ns, np4, no8)); i++;
+            skill_id = rnd_skill();
+            Resource skill_A = ResourceFactory.createResource("http://www.beamery.com/skill_A"+skill_id);
+            Literal skill_ALabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
+
+            skill_id = rnd_skill();
+            Resource skill_B = ResourceFactory.createResource("http://www.beamery.com/skill_B"+skill_id);
+            Literal skill_BLabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
+
+            skill_id = rnd_skill();
+            Resource skill_C = ResourceFactory.createResource("http://www.beamery.com/skill_C"+skill_id);
+            Literal skill_CLabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
+
+            skill_id = rnd_skill();
+            Resource skill_D = ResourceFactory.createResource("http://www.beamery.com/skill_D"+skill_id);
+            Literal skill_DLabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
+
+            skill_id = rnd_skill();
+            Resource skill_E = ResourceFactory.createResource("http://www.beamery.com/skill_E"+skill_id);
+            Literal skill_ELabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
+
+            m.add(ResourceFactory.createStatement(person, rdfType, personType)); i++;
+            m.add(ResourceFactory.createStatement(person, locUpdate, currDate)); i++;
+            if (add_label) {
+                m.add(ResourceFactory.createStatement(person, foaf_age, age)); i++;
+                m.add(ResourceFactory.createStatement(person, dct, resume)); i++;
+                m.add(ResourceFactory.createStatement(person, foaf_name, personName)); i++;
+                m.add(ResourceFactory.createStatement(person, targetSalary, salary)); i++;
+                m.add(ResourceFactory.createStatement(person, isActive, active)); i++;
+            }
+            m.add(ResourceFactory.createStatement(person, hasCountry, country)); i++;
+            m.add(ResourceFactory.createStatement(person, hasSkill, skill_A)); i++;
+            m.add(ResourceFactory.createStatement(person, hasSkill, skill_B)); i++;
+            m.add(ResourceFactory.createStatement(person, hasSkill, skill_C)); i++;
+            m.add(ResourceFactory.createStatement(person, hasSkill, skill_D)); i++;
+            m.add(ResourceFactory.createStatement(person, hasSkill, skill_E)); i++;
+            if (add_label) m.add(ResourceFactory.createStatement(skill_A, rdfsLabel, skill_ALabel)); i++;
+            if (add_label) m.add(ResourceFactory.createStatement(skill_B, rdfsLabel, skill_BLabel)); i++;
+            if (add_label) m.add(ResourceFactory.createStatement(skill_C, rdfsLabel, skill_CLabel)); i++;
+            if (add_label) m.add(ResourceFactory.createStatement(skill_D, rdfsLabel, skill_DLabel)); i++;
+            if (add_label) m.add(ResourceFactory.createStatement(skill_E, rdfsLabel, skill_ELabel)); i++;
+
           }
 
         } catch (Exception e) {
-            log("==["+Thread.currentThread().getName()+"]***FAILED Test " + e);
+            log("==["+Thread.currentThread().getName()+"]***FAILED Test" + e);
             return null;
         }
 

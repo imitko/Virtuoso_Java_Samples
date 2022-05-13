@@ -256,33 +256,33 @@ public class Test_Perf_Jena extends Thread {
 
         try {
 /**
-http://www.beamery.com/person_A http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.beamery.com/person.
-http://www.beamery.com/person_A http://www.beamery.com/lastLocationUpdate "2018-12-01"^^http://www.w3.org/2001/XMLSchema#date.
-http://www.beamery.com/person_A http://www.beamery.com/hasCountry http://www.beamery.com/country_A.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_A.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_B.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_C.
+http://localhost.localdomain/person_A http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://localhost.localdomain/person.
+http://localhost.localdomain/person_A http://localhost.localdomain/lastLocationUpdate "2018-12-01"^^http://www.w3.org/2001/XMLSchema#date.
+http://localhost.localdomain/person_A http://localhost.localdomain/hasCountry http://localhost.localdomain/country_A.
+http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http://localhost.localdomain/skill_A.
+http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http://localhost.localdomain/skill_B.
+http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http://localhost.localdomain/skill_C.
 **/
           int i = 0;
 
           Property rdfType = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-          Property locUpdate = ResourceFactory.createProperty("http://www.beamery.com/lastLocationUpdate");
-          Property hasCountry = ResourceFactory.createProperty("http://www.beamery.com/hasCountry");
-          Property hasSkill = ResourceFactory.createProperty("http://www.beamery.com/hasSkill");
+          Property locUpdate = ResourceFactory.createProperty("http://localhost.localdomain/lastLocationUpdate");
+          Property hasCountry = ResourceFactory.createProperty("http://localhost.localdomain/hasCountry");
+          Property hasSkill = ResourceFactory.createProperty("http://localhost.localdomain/hasSkill");
           Property foaf_name = ResourceFactory.createProperty("http://xmlns.com/foaf/0.1/name");
           Property foaf_age = ResourceFactory.createProperty("http://xmlns.com/foaf/0.1/age");
           Property dct = ResourceFactory.createProperty("http://purl.org/dc/terms/description");
-          Property targetSalary = ResourceFactory.createProperty("http://www.beamery.com/targetSalary");
-          Property isActive = ResourceFactory.createProperty("http://www.beamery.com/isActive");
+          Property targetSalary = ResourceFactory.createProperty("http://localhost.localdomain/targetSalary");
+          Property isActive = ResourceFactory.createProperty("http://localhost.localdomain/isActive");
           Property rdfsLabel = ResourceFactory.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 
-          Resource personType = ResourceFactory.createResource("http://www.beamery.com/person");
+          Resource personType = ResourceFactory.createResource("http://localhost.localdomain/person");
           Literal currDate = ResourceFactory.createTypedLiteral(LocalDateTime.now().toString(), XSDDatatype.XSDdateTime);
 
           while(i < chunk_size)
           {
             int skill_id;
-            Resource person = ResourceFactory.createResource("http://www.beamery.com/person_"+pid+"_"+id);
+            Resource person = ResourceFactory.createResource("http://localhost.localdomain/person_"+pid+"_"+id);
             Literal personName = ResourceFactory.createStringLiteral(lorem.getName()); // + " " + lorem.getLastName());
             //Literal personName = ResourceFactory.createStringLiteral("Person_"+pid+"_"+id);
             Literal age = ResourceFactory.createTypedLiteral (rnd_age());
@@ -291,26 +291,26 @@ http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beame
             Literal resume = ResourceFactory.createTypedLiteral (lorem.getParagraphs(2,4));
             id++;
 
-            Resource country = ResourceFactory.createResource("http://www.beamery.com/country/"+lorem.getCountry().replaceAll("\\s", "%20"));
+            Resource country = ResourceFactory.createResource("http://localhost.localdomain/country/"+lorem.getCountry().replaceAll("\\s", "%20"));
 
             skill_id = rnd_skill();
-            Resource skill_A = ResourceFactory.createResource("http://www.beamery.com/skill_A"+skill_id);
+            Resource skill_A = ResourceFactory.createResource("http://localhost.localdomain/skill_A"+skill_id);
             Literal skill_ALabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
 
             skill_id = rnd_skill();
-            Resource skill_B = ResourceFactory.createResource("http://www.beamery.com/skill_B"+skill_id);
+            Resource skill_B = ResourceFactory.createResource("http://localhost.localdomain/skill_B"+skill_id);
             Literal skill_BLabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
 
             skill_id = rnd_skill();
-            Resource skill_C = ResourceFactory.createResource("http://www.beamery.com/skill_C"+skill_id);
+            Resource skill_C = ResourceFactory.createResource("http://localhost.localdomain/skill_C"+skill_id);
             Literal skill_CLabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
 
             skill_id = rnd_skill();
-            Resource skill_D = ResourceFactory.createResource("http://www.beamery.com/skill_D"+skill_id);
+            Resource skill_D = ResourceFactory.createResource("http://localhost.localdomain/skill_D"+skill_id);
             Literal skill_DLabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
 
             skill_id = rnd_skill();
-            Resource skill_E = ResourceFactory.createResource("http://www.beamery.com/skill_E"+skill_id);
+            Resource skill_E = ResourceFactory.createResource("http://localhost.localdomain/skill_E"+skill_id);
             Literal skill_ELabel = ResourceFactory.createStringLiteral("Skill_"+skill_id);
 
             m.add(ResourceFactory.createStatement(person, rdfType, personType)); i++;

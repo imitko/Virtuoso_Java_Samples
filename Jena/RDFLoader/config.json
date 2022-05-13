@@ -1,0 +1,67 @@
+{
+  "conn": {
+     "host": "localhost",
+     "port": 1111,
+     "uid": "dba",
+     "pwd": "dba",
+     "isolationMode": "repeatable_read",
+     "concurrencyMode": "default",
+     "chunk_size": 5000,
+     "useAutoCommit": false,
+     "clear_graph": "test:insert"
+  },
+  "data": 
+    [ 
+      {"file": "xaa.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xab.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xac.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xad.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xae.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xaf.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xag.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xah.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xai.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      },
+      {"file": "xaj.ttl",
+       "type": "ttl",
+       "graph": "test:insert",
+       "clear_graph": false
+      }
+
+    ]
+}

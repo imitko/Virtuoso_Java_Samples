@@ -86,6 +86,52 @@ public class Test_Perf_Jena extends Thread {
 
     public static void main(String[] args) {
 
+        for (int i = 0; i < args.length; i ++)
+          {
+             if (args[i].equals("-host")) {
+                 instance = args[i+1];
+                 i ++;
+             }
+             if (args[i].equals("-port")) {
+                 port = args[i+1];
+                 i ++;
+             }
+             if (args[i].equals("-mt")) {
+                 max_threads = Integer.parseInt (args[i+1]);
+                 i ++;
+             }
+             if (args[i].equals("-count")) {
+                 max_triples = Integer.parseInt (args[i+1]);
+                 i ++;
+             }
+             if (args[i].equals("-bs")) {
+                 chunk_size = Integer.parseInt (args[i+1]);
+                 i ++;
+             }
+             if (args[i].equals("-U")) {
+                 uid = args[i+1];
+                 i ++;
+             }
+             if (args[i].equals("-P")) {
+                 pwd = args[i+1];
+                 i ++;
+             }
+             if (args[i].equals("-isolation")) {
+                 s_isolation = args[i+1];
+                 i ++;
+             }
+             if (args[i].equals("-concurrency")) {
+                 s_concurrency = args[i+1];
+                 i ++;
+             }
+             if (args[i].equals("-no-literals")) {
+                 add_label = false;
+             }
+             if (args[i].equals("-no-clean")) {
+                 clean = false;
+             }
+          }
+        /*
         if (args.length > 0)
           instance = args[0];
 
@@ -103,6 +149,7 @@ public class Test_Perf_Jena extends Thread {
 
         if (args.length > 5)
           s_concurrency = args[5];
+        */
 
        isolation = getIsolationLevel();
        concurrency = getConcurrencyMode();
@@ -126,6 +173,9 @@ public class Test_Perf_Jena extends Thread {
         System.out.println("         PWD = "+pwd);
         System.out.println("   isolation = "+s_isolation);
         System.out.println(" concurrency = "+s_concurrency);
+        System.out.println(" max clients = "+max_threads);
+        System.out.println(" max triples = "+max_triples);
+        System.out.println(" batch size  = "+chunk_size);
         System.out.println("===========================================================================\n");
 
         VirtDataset vds = null;

@@ -100,6 +100,9 @@ public class Test_Perf_Jena extends Thread {
         if (args.length > 5)
           s_concurrency = args[5];
 
+       isolation = getIsolationLevel();
+       concurrency = getConcurrencyMode();
+
         System.out.println("App options:");
         System.out.println(" % java Test_Perf_Jena hostname port_num uid pwd isolationMode concurrencyMode\n");
         System.out.println(" where ");

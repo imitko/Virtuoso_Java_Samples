@@ -133,6 +133,8 @@ public class RDFLoader extends Thread {
                if (s != null)
                    clear_graph = s;
 
+               var data_dir = conf.getString ("data-dir");
+
                var data = conf.getJSONArray("data");
                if (data != null) {
                    for (var i=0; i < data.length(); i++) {
@@ -144,7 +146,7 @@ public class RDFLoader extends Thread {
                        Lang lang = getLang(ftype);
                        if (lang == null)
                            log("Error unsupported file type: "+ftype);
-                       files.add(new TaskItem(fname, lang, graph, clear_graph));
+                       files.add(new TaskItem(data_dir+"/"+fname, lang, graph, clear_graph));
                    }
                }
            }

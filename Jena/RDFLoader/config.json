@@ -10,6 +10,7 @@
      "useAutoCommit": false,
      "clear_graph": "test:insert"
   },
+  "data-dir":".",
   "data": 
     [ 
       {"file": "xaa.ttl",

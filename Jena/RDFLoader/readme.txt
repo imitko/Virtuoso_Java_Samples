@@ -20,10 +20,19 @@ where
 
    clear_graph: the graph name, that will be clear before insert data, if it is required, may be empty
 
+   max_threads: max count of working threads, by default max count of threads = count of uploaded files
+
+   data_dir: directory name with data files
+
+
 - "data" block
    The list of files with data, that will be inserted to DB.
    Now app start ONE thread connection for each file.
    "file" : file name with path
-   "type" : type of data, may be one of: ttl | n3 | jsonld | rdfxml | turtle 
-   "graph": graph name for data
+   "type" : type of data, may be one of: 
+               RDF/XML | TURTLE | TTL | N3 | NTRIPLES | JSON-LD | JSON-LD10 | JSON-LD11 | RDF/JSON |
+               TRIG | NQUADS | RDF-PROTO | RDF-THRIFT | SHACLC | TRIX
+   "graph": graph name for data , may be empty for quad data
    "clear_graph": true - if graph must be cleared before insert data from file.
+
+

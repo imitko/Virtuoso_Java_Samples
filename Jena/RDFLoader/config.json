@@ -8,7 +8,9 @@
      "concurrencyMode": "default",
      "chunk_size": 5000,
      "useAutoCommit": false,
-     "clear_graph": "test:insert"
+     "clear_graph": "test:insert",
+     "data_dir":  ".",
+     "max_threads": 0
   },
   "data": 
     [ 

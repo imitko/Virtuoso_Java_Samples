@@ -24,7 +24,7 @@ public class RDFLoader extends Thread {
     public static final String VIRTUOSO_USERNAME = "dba";
     public static final String VIRTUOSO_PASSWORD = "dba";
 
-    public static int chunk_size = 5000;
+    public static int batch_size = 5000;
     public static String s_isolation = "repeatable_read";
     public static String s_concurrency = "default";
     public static boolean useAutoCommit = false;
@@ -138,7 +138,7 @@ public class RDFLoader extends Thread {
                s_isolation = getJSONString(cconn, "isolationMode", s_isolation);
                s_concurrency = getJSONString(cconn, "concurrencyMode", s_concurrency);
 
-               chunk_size = getJSONInt(cconn, "chunk_size", chunk_size);
+               batch_size = getJSONInt(cconn, "chunk_size", batch_size);
                useAutoCommit = getJSONBool(cconn, "useAutoCommit", useAutoCommit);
                clear_graph = getJSONString(cconn, "clear_graph", clear_graph);
                data_dir = getJSONString(cconn, "data_dir", data_dir);
@@ -186,7 +186,7 @@ public class RDFLoader extends Thread {
         System.out.println("         PWD = "+pwd);
         System.out.println("   isolation = "+s_isolation);
         System.out.println(" concurrency = "+s_concurrency);
-        System.out.println("  chunk_size = "+chunk_size);
+        System.out.println("  batch_size = "+batch_size);
         System.out.println("useAutoCommit= "+useAutoCommit);
         System.out.println(" max Threads = "+max_threads);
         System.out.println("    Data dir = "+data_dir);
@@ -267,9 +267,9 @@ public class RDFLoader extends Thread {
                 }
 
                 vm.setConcurrencyMode(concurrency);
-                vm.setBatchSize(chunk_size);
+                vm.setBatchSize(batch_size);
 
-                StreamRDF writer = vm.getStreamRDF(useAutoCommit, chunk_size, new MyDeadLockHandler(0));
+                StreamRDF writer = vm.getStreamRDF(useAutoCommit, batch_size, new MyDeadLockHandler(0));
 
                 String fpath = (new File(data_dir, work.fname)).getPath();
 

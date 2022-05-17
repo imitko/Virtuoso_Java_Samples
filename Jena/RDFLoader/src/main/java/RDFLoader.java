@@ -138,7 +138,7 @@ public class RDFLoader extends Thread {
                s_isolation = getJSONString(cconn, "isolationMode", s_isolation);
                s_concurrency = getJSONString(cconn, "concurrencyMode", s_concurrency);
 
-               batch_size = getJSONInt(cconn, "chunk_size", batch_size);
+               batch_size = getJSONInt(cconn, "batch_size", batch_size);
                useAutoCommit = getJSONBool(cconn, "useAutoCommit", useAutoCommit);
                clear_graph = getJSONString(cconn, "clear_graph", clear_graph);
                data_dir = getJSONString(cconn, "data_dir", data_dir);
@@ -267,7 +267,6 @@ public class RDFLoader extends Thread {
                 }
 
                 vm.setConcurrencyMode(concurrency);
-                vm.setBatchSize(batch_size);
 
                 StreamRDF writer = vm.getStreamRDF(useAutoCommit, batch_size, new MyDeadLockHandler(0));
 

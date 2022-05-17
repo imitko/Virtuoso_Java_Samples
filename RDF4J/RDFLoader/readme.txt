@@ -30,8 +30,9 @@ where
    By default, this app starts ONE DBMS connection (with a single thread) for each source file.
    "file" : file name that includes its path
    "type" : content-type, which may be one of: 
-              "RDF/XML" | "TURTLE" | "TTL" | "N3" | "NTRIPLES" | "JSON-LD" | "RDF/JSON" |
-              "TRIG" | "NQUADS" | "HDT" | "NDJSON-LD" | "RDFA" | "TRIG-START" | "TURTLE-STAR"
+               "RDF/XML" | "TURTLE" | "TTL" | "N3" | "NTRIPLES" | "JSON-LD" | 
+               "JSON-LD10" | "JSON-LD11" | "RDF/JSON" | "TRIG" | "NQUADS" | 
+               "RDF-PROTO" | "RDF-THRIFT" | "SHACLC" | "TRIX"
    "graph": named graph denoted by an IRI that names internal DBMS storage of data. Note, this may be left empty if the source data comprises quads
    "clear_graph": true - indicates clearance of existing data associated with destination named graph prior to commencement of new data load run.
 

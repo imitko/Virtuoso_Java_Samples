@@ -1,11 +1,11 @@
 1) Use the next commands:
- - for compile
+ - to compile
   % gradlew clean build
 
- - for run
+ - to run
   % gradlew run
 
-2) The App settings are in file config.json
+2) App settings are in file config.json
 where 
 - "conn"  block
    "isolationMode": read_uncommitted | read_committed | repeatable_read | serializable 
@@ -26,13 +26,13 @@ where
 
 
 - "data" block
-   The list of files with data, that will be inserted to DB.
-   Now app start ONE thread connection for each file.
-   "file" : file name with path
-   "type" : type of data, may be one of: 
+   The list of files comprising data to be loaded to a Virtuoso DBMS instance.
+   By default, this app starts ONE DBMS connection (with a single thread) for each source file.
+   "file" : file name that includes its path
+   "type" : content-type, which may be one of: 
                RDF/XML | TURTLE | TTL | N3 | NTRIPLES | JSON-LD | JSON-LD10 | JSON-LD11 | RDF/JSON |
                TRIG | NQUADS | RDF-PROTO | RDF-THRIFT | SHACLC | TRIX
-   "graph": graph name for data , may be empty for quad data
-   "clear_graph": true - if graph must be cleared before insert data from file.
+   "graph": named graph denoted by an IRI that names internal DBMS storage of data. Note, this may be left empty if the source data comprises quads
+   "clear_graph": true - indicates clearance of existing data associated with destination named graph prior to commencement of new data load run.
 
 

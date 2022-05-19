@@ -174,36 +174,36 @@ public class Test_Perf_RDF4J extends Thread {
 
         try {
 /**
-http://www.beamery.com/person_A http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.beamery.com/person.
-http://www.beamery.com/person_A http://www.beamery.com/lastLocationUpdate �2018-12-01�^^http://www.w3.org/2001/XMLSchema#date.
-http://www.beamery.com/person_A http://www.beamery.com/hasCountry http://www.beamery.com/country_A.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_A.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_B.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_C.
+http://www.example.com/person_A http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.example.com/person.
+http://www.example.com/person_A http://www.example.com/lastLocationUpdate �2018-12-01�^^http://www.w3.org/2001/XMLSchema#date.
+http://www.example.com/person_A http://www.example.com/hasCountry http://www.example.com/country_A.
+http://www.example.com/person_A http://www.example.com/hasSkill http://www.example.com/skill_A.
+http://www.example.com/person_A http://www.example.com/hasSkill http://www.example.com/skill_B.
+http://www.example.com/person_A http://www.example.com/hasSkill http://www.example.com/skill_C.
 
 **/
           int i = 0;
 
           IRI np1 = vfac.createIRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
-          IRI np2 = vfac.createIRI("http://www.beamery.com/lastLocationUpdate");
-          IRI np3 = vfac.createIRI("http://www.beamery.com/hasCountry");
-          IRI np4 = vfac.createIRI("http://www.beamery.com/hasSkill");
+          IRI np2 = vfac.createIRI("http://www.example.com/lastLocationUpdate");
+          IRI np3 = vfac.createIRI("http://www.example.com/hasCountry");
+          IRI np4 = vfac.createIRI("http://www.example.com/hasSkill");
 
-          IRI no1 = vfac.createIRI("http://www.beamery.com/person");
+          IRI no1 = vfac.createIRI("http://www.example.com/person");
           IRI no2 = vfac.createIRI("\""+ LocalDate.now() +"\"^^http://www.w3.org/2001/XMLSchema#date");
 
           while(i < chunk_size) 
           {
-            IRI ns = vfac.createIRI("http://www.beamery.com/person_"+pid+"_"+id);
+            IRI ns = vfac.createIRI("http://www.example.com/person_"+pid+"_"+id);
             id++;
 
-            IRI no3 = vfac.createIRI("http://www.beamery.com/country_"+pid);
-            IRI no4 = vfac.createIRI("http://www.beamery.com/skill_A"+rnd_skill());
-            IRI no5 = vfac.createIRI("http://www.beamery.com/skill_B"+rnd_skill());
-            IRI no6 = vfac.createIRI("http://www.beamery.com/skill_C"+rnd_skill());
-            IRI no7 = vfac.createIRI("http://www.beamery.com/skill_D"+rnd_skill());
-            IRI no8 = vfac.createIRI("http://www.beamery.com/skill_E"+rnd_skill());
+            IRI no3 = vfac.createIRI("http://www.example.com/country_"+pid);
+            IRI no4 = vfac.createIRI("http://www.example.com/skill_A"+rnd_skill());
+            IRI no5 = vfac.createIRI("http://www.example.com/skill_B"+rnd_skill());
+            IRI no6 = vfac.createIRI("http://www.example.com/skill_C"+rnd_skill());
+            IRI no7 = vfac.createIRI("http://www.example.com/skill_D"+rnd_skill());
+            IRI no8 = vfac.createIRI("http://www.example.com/skill_E"+rnd_skill());
 
             lst.add(vfac.createStatement(ns,np1, no1, context));  i++;
             lst.add(vfac.createStatement(ns, np2, no2, context)); i++;

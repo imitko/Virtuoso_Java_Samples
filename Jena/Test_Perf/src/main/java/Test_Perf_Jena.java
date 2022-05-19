@@ -179,35 +179,35 @@ public class Test_Perf_Jena extends Thread {
 
         try {
 /**
-http://www.beamery.com/person_A http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.beamery.com/person.
-http://www.beamery.com/person_A http://www.beamery.com/lastLocationUpdate "2018-12-01"^^http://www.w3.org/2001/XMLSchema#date.
-http://www.beamery.com/person_A http://www.beamery.com/hasCountry http://www.beamery.com/country_A.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_A.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_B.
-http://www.beamery.com/person_A http://www.beamery.com/hasSkill http://www.beamery.com/skill_C.
+http://www.example.com/person_A http://www.w3.org/1999/02/22-rdf-syntax-ns#type http://www.example.com/person.
+http://www.example.com/person_A http://www.example.com/lastLocationUpdate "2018-12-01"^^http://www.w3.org/2001/XMLSchema#date.
+http://www.example.com/person_A http://www.example.com/hasCountry http://www.example.com/country_A.
+http://www.example.com/person_A http://www.example.com/hasSkill http://www.example.com/skill_A.
+http://www.example.com/person_A http://www.example.com/hasSkill http://www.example.com/skill_B.
+http://www.example.com/person_A http://www.example.com/hasSkill http://www.example.com/skill_C.
 
 **/
           int i = 0;
 
           Property np1 = ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-          Property np2 = ResourceFactory.createProperty("http://www.beamery.com/lastLocationUpdate");
-          Property np3 = ResourceFactory.createProperty("http://www.beamery.com/hasCountry");
-          Property np4 = ResourceFactory.createProperty("http://www.beamery.com/hasSkill");
+          Property np2 = ResourceFactory.createProperty("http://www.example.com/lastLocationUpdate");
+          Property np3 = ResourceFactory.createProperty("http://www.example.com/hasCountry");
+          Property np4 = ResourceFactory.createProperty("http://www.example.com/hasSkill");
 
-          Resource no1 = ResourceFactory.createResource("http://www.beamery.com/person");
+          Resource no1 = ResourceFactory.createResource("http://www.example.com/person");
           Resource no2 = ResourceFactory.createResource("\""+ LocalDate.now() +"\"^^http://www.w3.org/2001/XMLSchema#date");
 
           while(i < chunk_size) 
           {
-            Resource ns = ResourceFactory.createResource("http://www.beamery.com/person_"+pid+"_"+id);
+            Resource ns = ResourceFactory.createResource("http://www.example.com/person_"+pid+"_"+id);
             id++;
 
-            Resource no3 = ResourceFactory.createResource("http://www.beamery.com/country_"+pid);
-            Resource no4 = ResourceFactory.createResource("http://www.beamery.com/skill_A"+rnd_skill());
-            Resource no5 = ResourceFactory.createResource("http://www.beamery.com/skill_B"+rnd_skill());
-            Resource no6 = ResourceFactory.createResource("http://www.beamery.com/skill_C"+rnd_skill());
-            Resource no7 = ResourceFactory.createResource("http://www.beamery.com/skill_D"+rnd_skill());
-            Resource no8 = ResourceFactory.createResource("http://www.beamery.com/skill_E"+rnd_skill());
+            Resource no3 = ResourceFactory.createResource("http://www.example.com/country_"+pid);
+            Resource no4 = ResourceFactory.createResource("http://www.example.com/skill_A"+rnd_skill());
+            Resource no5 = ResourceFactory.createResource("http://www.example.com/skill_B"+rnd_skill());
+            Resource no6 = ResourceFactory.createResource("http://www.example.com/skill_C"+rnd_skill());
+            Resource no7 = ResourceFactory.createResource("http://www.example.com/skill_D"+rnd_skill());
+            Resource no8 = ResourceFactory.createResource("http://www.example.com/skill_E"+rnd_skill());
 
             m.add(ResourceFactory.createStatement(ns, np1, no1)); i++;
             m.add(ResourceFactory.createStatement(ns, np2, no2)); i++;

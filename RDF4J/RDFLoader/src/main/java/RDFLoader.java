@@ -83,7 +83,7 @@ public class RDFLoader extends Thread {
             case "HDT":  return RDFFormat.HDT;
             case "NDJSON-LD":  return RDFFormat.NDJSONLD;
             case "RDFA":  return RDFFormat.RDFA;
-            case "TRIG-START":  return RDFFormat.TRIGSTAR;
+            case "TRIG-STAR":  return RDFFormat.TRIGSTAR;
             case "TURTLE-STAR":  return RDFFormat.TURTLESTAR;
 
             default:  return null;

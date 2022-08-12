@@ -1,39 +1,48 @@
-1) Use the next commands:
- - to compile
-  % gradlew clean build
+1) The following commands may be used:
 
- - to run
-  % gradlew run
+   - to compile
+     % gradlew clean build
 
-2) App settings are in file config.json
-where 
-- "conn"  block
-   "isolationMode": read_uncommitted | read_committed | repeatable_read | serializable 
-                  default isolationMode = repeatable_read 
+   - to run
+     % gradlew run
 
-   "concurrencyMode": default | optimistic | pessimistic 
-                  default concurrencyMode = default 
+2) The following app settings are in file config.json
 
-   "batch_size": the size of one chunk data, that will be sent to server
+   - "conn"  block
 
-   "useAutoCommit": false, true
+   - "isolationMode": read_uncommitted | read_committed | repeatable_read | serializable 
+                      default = repeatable_read 
 
-   "clear_graph": the graph name, that will be clear before insert data, if it is required, may be empty
+   - "concurrencyMode": default | optimistic | pessimistic 
+                        default = default 
 
-   "max_threads": max count of working threads, by default max count of threads = count of uploaded files
+   - "batch_size": the size of each chunk of data to be sent to server
 
-   "data_dir": directory name with data files
+   - "useAutoCommit": false, true
 
+   - "clear_graph": the name of the graph that will be cleared before inserting 
+                    data, if it is required. May be empty.
 
-- "data" block
-   The list of files comprising data to be loaded to a Virtuoso DBMS instance.
-   By default, this app starts ONE DBMS connection (with a single thread) for each source file.
-   "file" : file name that includes its path
-   "type" : content-type, which may be one of: 
-               "RDF/XML" | "TURTLE" | "TTL" | "N3" | "NTRIPLES" | "JSON-LD" | 
-               "JSON-LD10" | "JSON-LD11" | "RDF/JSON" | "TRIG" | "NQUADS" | 
-               "RDF-PROTO" | "RDF-THRIFT" | "SHACLC" | "TRIX"
-   "graph": named graph denoted by an IRI that names internal DBMS storage of data. Note, this may be left empty if the source data comprises quads
-   "clear_graph": true - indicates clearance of existing data associated with destination named graph prior to commencement of new data load run.
+   - "max_threads": max count of working threads
+                    default = count of uploaded files
+
+   - "data_dir": path to directory containing data files to be loaded
+
+   - "data" block: The list of files comprising data to be loaded to a Virtuoso 
+                   DBMS instance. By default, this app will start ONE DBMS 
+                   connection (with a single thread) for each source file.
+
+     - "file" : file name, including its path
+
+     - "type" : content-type, which may be any of: 
+              "RDF/XML" | "TURTLE" | "TTL" | "N3" | "NTRIPLES" | "JSON-LD"
+              | "JSON-LD10" | "JSON-LD11" | "RDF/JSON" | "TRIG" | "NQUADS"
+              | "RDF-PROTO" | "RDF-THRIFT" | "SHACLC" | "TRIX"
+
+     - "graph": named graph denoted by an IRI that names internal DBMS storage of data. 
+                Note: this may be left empty if the source data comprises quads.
+
+     - "clear_graph": true - indicates clearance of existing data associated with destination 
+                    named graph prior to commencement of new data load run.
 
 

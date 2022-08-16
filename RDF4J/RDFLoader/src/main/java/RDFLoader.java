@@ -13,6 +13,7 @@ import java.nio.file.*;
 import java.sql.Connection;
 import java.util.EmptyStackException;
 import java.util.Stack;
+import java.util.zip.*;
 
 
 
@@ -155,11 +156,20 @@ public class RDFLoader extends Thread {
                        String fname = v.getString("file");
                        String ftype = v.getString("type");
                        String graph = v.getString("graph");
-                       boolean clear_graph = v.getBoolean("clear_graph");
+                       boolean clear_graph = getJSONBool(v, "clear_graph", false);
+
+                       boolean gziped = false;
+                       String s = fname.toLowerCase();
+
+                       if (s.endsWith(".gz") || s.endsWith(".z"))
+                         gziped = true;
+                         
+                       gziped = getJSONBool(v, "gziped", gziped);
+
                        RDFFormat format = getFormat(ftype);
                        if (format == null)
                            log("Error unsupported file type: "+ftype);
-                       files.push(new TaskItem(fname, format, graph, clear_graph));
+                       files.push(new TaskItem(fname, format, graph, clear_graph, gziped));
                    }
                }
            }
@@ -277,9 +287,15 @@ public class RDFLoader extends Thread {
 
                 log("==[" + Thread.currentThread().getName() + "] Start load data = " + fpath);
 
-                try (InputStream in = new FileInputStream(fpath)) {
-                    conn.add(in, "myfile", RDFFormat.TURTLE, batch_size, useAutoCommit, new MyDeadLockHandler(0), context);
-                }
+                if (work.gziped)
+                  try (InputStream in = new GZIPInputStream(new FileInputStream(fpath))) {
+                      conn.add(in, "myfile", work.ftype, batch_size, useAutoCommit, new MyDeadLockHandler(0), context);
+                  }
+                else
+                  try (InputStream in = new FileInputStream(fpath)) {
+                      conn.add(in, "myfile", work.ftype, batch_size, useAutoCommit, new MyDeadLockHandler(0), context);
+                  }
+
                 log("==[" + Thread.currentThread().getName() + "] End load data = " + fpath);
 
             } catch (Exception e) {
@@ -301,13 +317,15 @@ public class RDFLoader extends Thread {
         final RDFFormat ftype;
         final String graph;
         final boolean clear_graph;
+        final boolean gziped;
 
-        TaskItem(String fname, RDFFormat ftype, String graph, boolean clear_graph)
+        TaskItem(String fname, RDFFormat ftype, String graph, boolean clear_graph, boolean gziped)
         {
             this.fname = fname;
             this.ftype = ftype;
             this.graph = graph;
             this.clear_graph = clear_graph;
+            this.gziped = gziped;
         }
     }
 

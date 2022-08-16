@@ -34,5 +34,6 @@ where
               "TRIG" | "NQUADS" | "HDT" | "NDJSON-LD" | "RDFA" | "TRIG-START" | "TURTLE-STAR"
    "graph": named graph denoted by an IRI that names internal DBMS storage of data. Note, this may be left empty if the source data comprises quads
    "clear_graph": true - indicates clearance of existing data associated with destination named graph prior to commencement of new data load run.
+   "gziped": true - indicates, that file was compressed with GZip. It will be set automatically, if file has the additional extendion ".gz" or ".z". Example: "test.ttl.gz"
 
 

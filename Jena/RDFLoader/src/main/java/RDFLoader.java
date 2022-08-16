@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EmptyStackException;
 import java.util.Stack;
-
+import java.util.zip.*;
 
 import virtuoso.jena.driver.*;
 
@@ -145,8 +145,6 @@ public class RDFLoader extends Thread {
                max_threads = getJSONInt(cconn, "max_threads", max_threads);
 
 
-
-
                var data = conf.getJSONArray("data");
                if (data != null) {
                    for (var i=0; i < data.length(); i++) {
@@ -155,10 +153,19 @@ public class RDFLoader extends Thread {
                        var ftype = v.getString("type");
                        var graph = v.getString("graph");
                        var clear_graph = v.getBoolean("clear_graph");
+
+                       boolean gziped = false;
+                       String s = fname.toLowerCase();
+
+                       if (s.endsWith(".gz") || s.endsWith(".z"))
+                         gziped = true;
+                         
+                       gziped = getJSONBool(v, "gziped", gziped);
+
                        Lang lang = getLang(ftype);
                        if (lang == null)
                            log("Error unsupported file type: "+ftype);
-                       files.push(new TaskItem(fname, lang, graph, clear_graph));
+                       files.push(new TaskItem(fname, lang, graph, clear_graph, gziped));
                    }
                }
            }
@@ -272,7 +279,14 @@ public class RDFLoader extends Thread {
 
                 String fpath = (new File(data_dir, work.fname)).getPath();
 
-                try (InputStream in = new FileInputStream(fpath)) {
+                InputStream in = null;
+
+                try {
+                  if (work.gziped)
+                    in = new GZIPInputStream(new FileInputStream(fpath));
+                  else
+                    in = new FileInputStream(fpath);
+
                     RDFParser parser = RDFParser.create()
                             .source(in)
                             .lang(work.ftype) //.lang(RDFLanguages.N3)
@@ -282,6 +296,9 @@ public class RDFLoader extends Thread {
                     log("==[" + Thread.currentThread().getName() + "] Start load data = " + fpath);
                     parser.parse(writer);
                     log("==[" + Thread.currentThread().getName() + "] End load data = " + fpath);
+                } finally {
+                  if (in != null)
+                    in.close();
                 }
 
             } catch (Exception e) {
@@ -303,13 +320,15 @@ public class RDFLoader extends Thread {
         final Lang ftype;
         final String graph;
         final boolean clear_graph;
+        final boolean gziped;
 
-        TaskItem(String fname, Lang ftype, String graph, boolean clear_graph)
+        TaskItem(String fname, Lang ftype, String graph, boolean clear_graph, boolean gziped)
         {
             this.fname = fname;
             this.ftype = ftype;
             this.graph = graph;
             this.clear_graph = clear_graph;
+            this.gziped = gziped;
         }
     }
 

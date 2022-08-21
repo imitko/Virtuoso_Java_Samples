@@ -1,0 +1,20 @@
+apply plugin: 'application'
+mainClassName = 'RDFLoader'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    mavenCentral()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+
+    implementation 'org.eclipse.rdf4j:rdf4j-runtime:3.7.6'
+    implementation 'org.json:json:20220320'
+
+    implementation files('lib/virtjdbc4_2.jar')
+    implementation files('lib/virt_rdf4j.jar')
+}
+

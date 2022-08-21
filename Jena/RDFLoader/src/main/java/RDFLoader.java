@@ -1,6 +1,5 @@
 
 
-import com.google.gson.JsonObject;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RDFParser;
@@ -12,8 +11,9 @@ import org.json.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Locale;
+import java.util.EmptyStackException;
+import java.util.Stack;
+import java.util.zip.*;
 
 import virtuoso.jena.driver.*;
 
@@ -24,10 +24,11 @@ public class RDFLoader extends Thread {
     public static final String VIRTUOSO_USERNAME = "dba";
     public static final String VIRTUOSO_PASSWORD = "dba";
 
-    public static int chunk_size = 5000;
+    public static int batch_size = 5000;
     public static String s_isolation = "repeatable_read";
     public static String s_concurrency = "default";
     public static boolean useAutoCommit = false;
+    public static int max_threads = 5;
 
     public static String instance = VIRTUOSO_INSTANCE;
     public static int port = VIRTUOSO_PORT;
@@ -37,20 +38,51 @@ public class RDFLoader extends Thread {
     public static VirtIsolationLevel isolation = VirtIsolationLevel.REPEATABLE_READ;
     public static int concurrency = VirtGraph.CONCUR_DEFAULT;
 
-    static ArrayList<TaskItem> files = new ArrayList<>();
+    static Stack<TaskItem> files = new Stack<>();
     static String clear_graph = null;
+    static String data_dir = ".";
+
+
 
     TaskItem work;
 
+    public static String getJSONString(JSONObject o, String key, String def) {
+        if (o.has(key))
+            return o.getString(key);
+        else
+            return def;
+    }
+    public static int getJSONInt(JSONObject o, String key, int def) {
+        if (o.has(key))
+            return o.getInt(key);
+        else
+            return def;
+    }
+    public static boolean getJSONBool(JSONObject o, String key, boolean def) {
+        if (o.has(key))
+            return o.getBoolean(key);
+        else
+            return def;
+    }
 
     public static Lang getLang(String ftype) {
-        String s = ftype.toLowerCase();
+        String s = ftype.toUpperCase();
         switch (s) {
-            case "n3":  return RDFLanguages.N3;
-            case "jsonld":  return RDFLanguages.JSONLD;
-            case "rdfxml":  return RDFLanguages.RDFXML;
-            case "turtle":  return RDFLanguages.TURTLE;
-            case "ttl":  return RDFLanguages.TTL;
+            case "RDF/XML":  return RDFLanguages.RDFXML;
+            case "TURTLE":  return RDFLanguages.TURTLE;
+            case "TTL":  return RDFLanguages.TTL;
+            case "N3":  return RDFLanguages.N3;
+            case "NTRIPLES":  return RDFLanguages.NTRIPLES;
+            case "JSON-LD":  return RDFLanguages.JSONLD;
+            case "JSON-LD10":  return RDFLanguages.JSONLD10;
+            case "JSON-LD11":  return RDFLanguages.JSONLD11;
+            case "RDF/JSON":  return RDFLanguages.RDFJSON;
+            case "TRIG":  return RDFLanguages.TRIG;
+            case "NQUADS":  return RDFLanguages.NQUADS;
+            case "RDF-PROTO":  return RDFLanguages.RDFPROTO;
+            case "RDF-THRIFT":  return RDFLanguages.RDFTHRIFT;
+            case "SHACLC":  return RDFLanguages.SHACLC;
+            case "TRIX":  return RDFLanguages.TRIX;
             default:  return null;
         }
     }
@@ -97,41 +129,21 @@ public class RDFLoader extends Thread {
            var conf = new JSONObject(config);
            var cconn = conf.getJSONObject("conn");
            if (cconn != null) {
-               var s = cconn.getString("host");
-               if (s != null)
-                   instance = s;
+               instance = getJSONString(cconn, "host", VIRTUOSO_INSTANCE);
+               port = getJSONInt(cconn, "port", VIRTUOSO_PORT);
+               uid = getJSONString(cconn, "uid", VIRTUOSO_USERNAME);
+               pwd = getJSONString(cconn, "pwd", VIRTUOSO_PASSWORD);
+               uid = getJSONString(cconn, "uid", VIRTUOSO_USERNAME);
 
-               var so = cconn.get("port");
-               if (so != null)
-                   port = cconn.getInt("port");
+               s_isolation = getJSONString(cconn, "isolationMode", s_isolation);
+               s_concurrency = getJSONString(cconn, "concurrencyMode", s_concurrency);
 
-               s = cconn.getString("uid");
-               if (s != null)
-                   uid = s;
+               batch_size = getJSONInt(cconn, "batch_size", batch_size);
+               useAutoCommit = getJSONBool(cconn, "useAutoCommit", useAutoCommit);
+               clear_graph = getJSONString(cconn, "clear_graph", clear_graph);
+               data_dir = getJSONString(cconn, "data_dir", data_dir);
+               max_threads = getJSONInt(cconn, "max_threads", max_threads);
 
-               s = cconn.getString("pwd");
-               if (s != null)
-                   pwd = s;
-
-               s = cconn.getString("isolationMode");
-               if (s != null)
-                   s_isolation = s;
-
-               s = cconn.getString("concurrencyMode");
-               if (s != null)
-                   s_concurrency = s;
-
-               so = cconn.get("chunk_size");
-               if (so != null)
-                   chunk_size = cconn.getInt("chunk_size");
-
-               so = cconn.get("useAutoCommit");
-               if (so != null)
-                   useAutoCommit = cconn.getBoolean("useAutoCommit");
-
-               s = cconn.getString("clear_graph");
-               if (s != null)
-                   clear_graph = s;
 
                var data_dir = conf.getString ("data-dir");
 
@@ -143,10 +155,19 @@ public class RDFLoader extends Thread {
                        var ftype = v.getString("type");
                        var graph = v.getString("graph");
                        var clear_graph = v.getBoolean("clear_graph");
+
+                       boolean gziped = false;
+                       String s = fname.toLowerCase();
+
+                       if (s.endsWith(".gz") || s.endsWith(".z"))
+                         gziped = true;
+                         
+                       gziped = getJSONBool(v, "gziped", gziped);
+
                        Lang lang = getLang(ftype);
                        if (lang == null)
                            log("Error unsupported file type: "+ftype);
-                       files.add(new TaskItem(data_dir+"/"+fname, lang, graph, clear_graph));
+                       files.push(new TaskItem(data_dir+"/"+fname, lang, graph, clear_graph, gziped));
                    }
                }
            }
@@ -163,6 +184,9 @@ public class RDFLoader extends Thread {
        isolation = getIsolationLevel();
        concurrency = getConcurrencyMode();
 
+       if (max_threads == 0)
+           max_threads = files.size();
+
         System.out.println("===========================================================================\n");
         System.out.println("App will use next options");
         System.out.println("    hostname = "+instance);
@@ -171,8 +195,10 @@ public class RDFLoader extends Thread {
         System.out.println("         PWD = "+pwd);
         System.out.println("   isolation = "+s_isolation);
         System.out.println(" concurrency = "+s_concurrency);
-        System.out.println("  chunk_size = "+chunk_size);
+        System.out.println("  batch_size = "+batch_size);
         System.out.println("useAutoCommit= "+useAutoCommit);
+        System.out.println(" max Threads = "+max_threads);
+        System.out.println("    Data dir = "+data_dir);
 
         System.out.println("===========================================================================\n");
 
@@ -194,74 +220,98 @@ public class RDFLoader extends Thread {
             }
         }
 
-        ArrayList<RDFLoader> tasks = new ArrayList<>();
-        for(var i : files)
-            tasks.add( new RDFLoader(i));
+        RDFLoader[] tasks = new RDFLoader[max_threads];
+        for(var i=0; i< tasks.length; i++)
+            tasks[i] = new RDFLoader();
 
-
-        for(var x : tasks)
-            x.start();
+        for(var i : tasks)
+            i.start();
 
         try {
-        for(var x : tasks)
-            x.join();
+            for (var i : tasks)
+                i.join();
         } catch(Exception e) {
             log(e.toString());
         }
     }
 
 
+   public RDFLoader() {
 
-
-
-    public RDFLoader(TaskItem v) {
-        this.work = v;
-    }
-
+   }
 
 
 
     public void run()
     {
-        VirtDataset vds = null;
+       this.work = null;
 
-        try {
-            vds = new VirtDataset("jdbc:virtuoso://" + instance + ":" + port, uid, pwd);
-            vds.setIsolationLevel(isolation);
+        while (files.size() != 0) {
 
-
-            VirtModel vm = (VirtModel)vds.getNamedModel(work.graph);
-
-            if (work.clear_graph) {
-                log("==[" + Thread.currentThread().getName() + "] Start clear graph = "+ work.graph);
-                vm.removeAll();
-                log("==[" + Thread.currentThread().getName() + "] End clear graph = "+ work.graph);
-            }
-
-            vm.setConcurrencyMode(concurrency);
-            vm.setBatchSize(chunk_size);
-
-            StreamRDF writer = vm.getStreamRDF(useAutoCommit, chunk_size, new MyDeadLockHandler(0));
-
-            try (InputStream in = new FileInputStream(work.fname)) {
-                RDFParser parser = RDFParser.create()
-                        .source(in)
-                        .lang(work.ftype) //.lang(RDFLanguages.N3)
-                        .errorHandler(ErrorHandlerFactory.errorHandlerWarn)  //.errorHandler(ErrorHandlerFactory.errorHandlerStrict)
-                        .build();
-
-                log("==["+Thread.currentThread().getName()+"] Start load data = "+work.fname);
-                parser.parse(writer);
-                log("==["+Thread.currentThread().getName()+"] End load data = ");
-            }
-
-        } catch (Exception e) {
-            log("==["+Thread.currentThread().getName()+"]***FAILED Test " + e);
-        } finally {
-          if (vds != null)
             try {
-              vds.close();
-            } catch(Exception e) { }
+                this.work = files.pop();
+            }catch (EmptyStackException e){
+                break;
+            } catch (Exception e) {
+                log("==[" + Thread.currentThread().getName() + "] Ex:" + e.toString());
+                break;
+            }
+
+
+            log("==[" + Thread.currentThread().getName() + "] get task");
+
+            VirtDataset vds = null;
+
+            try {
+                vds = new VirtDataset("jdbc:virtuoso://" + instance + ":" + port, uid, pwd);
+                vds.setIsolationLevel(isolation);
+
+
+                VirtModel vm = (VirtModel) vds.getNamedModel(work.graph);
+
+                if (work.clear_graph) {
+                    log("==[" + Thread.currentThread().getName() + "] Start clear graph = " + work.graph);
+                    vm.removeAll();
+                    log("==[" + Thread.currentThread().getName() + "] End clear graph = " + work.graph);
+                }
+
+                vm.setConcurrencyMode(concurrency);
+
+                StreamRDF writer = vm.getStreamRDF(useAutoCommit, batch_size, new MyDeadLockHandler(0));
+
+                String fpath = (new File(data_dir, work.fname)).getPath();
+
+                InputStream in = null;
+
+                try {
+                  if (work.gziped)
+                    in = new GZIPInputStream(new FileInputStream(fpath));
+                  else
+                    in = new FileInputStream(fpath);
+
+                    RDFParser parser = RDFParser.create()
+                            .source(in)
+                            .lang(work.ftype) //.lang(RDFLanguages.N3)
+                            .errorHandler(ErrorHandlerFactory.errorHandlerWarn)  //.errorHandler(ErrorHandlerFactory.errorHandlerStrict)
+                            .build();
+
+                    log("==[" + Thread.currentThread().getName() + "] Start load data = " + fpath);
+                    parser.parse(writer);
+                    log("==[" + Thread.currentThread().getName() + "] End load data = " + fpath);
+                } finally {
+                  if (in != null)
+                    in.close();
+                }
+
+            } catch (Exception e) {
+                log("==[" + Thread.currentThread().getName() + "]***FAILED Upload data " + e);
+            } finally {
+                if (vds != null)
+                    try {
+                        vds.close();
+                    } catch (Exception e) {
+                    }
+            }
         }
 
         log("==["+Thread.currentThread().getName()+"] DONE = ");
@@ -272,13 +322,15 @@ public class RDFLoader extends Thread {
         final Lang ftype;
         final String graph;
         final boolean clear_graph;
+        final boolean gziped;
 
-        TaskItem(String fname, Lang ftype, String graph, boolean clear_graph)
+        TaskItem(String fname, Lang ftype, String graph, boolean clear_graph, boolean gziped)
         {
             this.fname = fname;
             this.ftype = ftype;
             this.graph = graph;
             this.clear_graph = clear_graph;
+            this.gziped = gziped;
         }
     }
 

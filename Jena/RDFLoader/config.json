@@ -6,9 +6,11 @@
      "pwd": "dba",
      "isolationMode": "repeatable_read",
      "concurrencyMode": "default",
-     "chunk_size": 5000,
+     "batch_size": 5000,
      "useAutoCommit": false,
-     "clear_graph": "test:insert"
+     "clear_graph": "test:insert",
+     "data_dir":  ".",
+     "max_threads": 0
   },
   "data-dir":".",
   "data": 

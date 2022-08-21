@@ -33,7 +33,7 @@ public class Test_Perf_Jena extends Thread {
     public static int max_threads = 5;
 
     public static int chunk_size = 20000;
-    public static String graph_name = "test:insert";
+    public static String graph_name = "urn:test-perf:insert";
     public static String s_isolation = "repeatable_read";
     public static String s_concurrency = "default";
 

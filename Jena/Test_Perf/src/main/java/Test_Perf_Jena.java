@@ -31,6 +31,7 @@ public class Test_Perf_Jena extends Thread {
 
     public static long max_triples = 10000000;         //max insert triples per thread
     public static int max_threads = 5;
+    public static long delay = 0;
 
     public static int chunk_size = 20000;
     public static String graph_name = "urn:test-perf:insert";
@@ -46,6 +47,7 @@ public class Test_Perf_Jena extends Thread {
     public static int concurrency = VirtGraph.CONCUR_DEFAULT;
     static boolean add_label = true;
     static boolean clean = true;
+    public static boolean multigraph = false;
 
     char pid;
     int id;
@@ -104,6 +106,10 @@ public class Test_Perf_Jena extends Thread {
                  max_triples = Integer.parseInt (args[i+1]);
                  i ++;
              }
+             if (args[i].equals("-sleep")) {
+                 delay = Integer.parseInt (args[i+1]);
+                 i ++;
+             }
              if (args[i].equals("-bs")) {
                  chunk_size = Integer.parseInt (args[i+1]);
                  i ++;
@@ -129,6 +135,9 @@ public class Test_Perf_Jena extends Thread {
              }
              if (args[i].equals("-no-clean")) {
                  clean = false;
+             }
+             if (args[i].equals("-multigraph")) {
+                 multigraph = true;
              }
           }
         /*
@@ -317,7 +326,7 @@ http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http
             m.add(ResourceFactory.createStatement(person, locUpdate, currDate)); i++;
             if (add_label) {
                 m.add(ResourceFactory.createStatement(person, foaf_age, age)); i++;
-                m.add(ResourceFactory.createStatement(person, dct, resume)); i++;
+                //m.add(ResourceFactory.createStatement(person, dct, resume)); i++;
                 m.add(ResourceFactory.createStatement(person, foaf_name, personName)); i++;
                 m.add(ResourceFactory.createStatement(person, targetSalary, salary)); i++;
                 m.add(ResourceFactory.createStatement(person, isActive, active)); i++;
@@ -333,7 +342,8 @@ http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http
             if (add_label) m.add(ResourceFactory.createStatement(skill_C, rdfsLabel, skill_CLabel)); i++;
             if (add_label) m.add(ResourceFactory.createStatement(skill_D, rdfsLabel, skill_DLabel)); i++;
             if (add_label) m.add(ResourceFactory.createStatement(skill_E, rdfsLabel, skill_ELabel)); i++;
-
+            if (multigraph)
+               break;
           }
 
         } catch (Exception e) {
@@ -349,26 +359,54 @@ http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http
     public void run() {
 
         VirtDataset vds = null;
-        long i = 0;
+        String graph_uri = graph_name;
+        long i = 0, ndone = 0;
 
         try {
           vds = new VirtDataset("jdbc:virtuoso://" + instance + ":" + port, uid, pwd);
           vds.setIsolationLevel(isolation);
 
-          VirtModel vm = (VirtModel)vds.getNamedModel(graph_name);
+          VirtModel vm = null;
+          vm = (VirtModel)vds.getNamedModel(graph_uri);
           vm.setConcurrencyMode(concurrency);
+          vm.setConcurrencyMode(concurrency);
+          vm.begin();
 
           while(i < max_triples) {
-            Model m = genModel();
-            long sz = m.size();
 
-            i += sz;
+            Model m;
+            long sz;
 
-            log("==["+Thread.currentThread().getName()+"]== data prepared "+sz);
+
+
+
+             if (multigraph) {
+                graph_uri = "http://localhost.localdomain/person_"+pid+"_"+id;
+                vm = (VirtModel)vds.getNamedModel(graph_uri);
+                vm.begin();
+             }
+             m = genModel(); // inc id
+             sz = m.size();
+             i += sz;
+             ndone += sz;
+            log("==["+Thread.currentThread().getName()+"]== data prepared "+ graph_uri);
 
             while(true) {
-              try {
-                vm.begin().add(m).commit();
+                 
+             try {
+
+                if (multigraph) {  
+                  vm.removeAll();
+                }
+                vm.add(m);
+                if (ndone >= chunk_size) {
+                  log("==["+Thread.currentThread().getName()+"]== commit start at "+ graph_uri);
+                    vm.commit();
+                    vm.begin();
+                    ndone = 0;
+                  log("==["+Thread.currentThread().getName()+"]== COMMITED "+ graph_uri);
+                }
+
               } catch (Exception e) {
                 Throwable ex = e.getCause();
                 boolean deadlock = false;
@@ -376,20 +414,26 @@ http://localhost.localdomain/person_A http://localhost.localdomain/hasSkill http
                   deadlock = true;
 
                 if (deadlock) {
-                  log("==["+Thread.currentThread().getName()+"]== deadlock, rollback all and try insert again");
+                  log("==["+Thread.currentThread().getName()+"]== deadlock, rollback " + graph_uri);
                   vm.abort();
                   continue;
                 }
 
                 throw e;
               }
-
+              //if (nth % 15 == 0)
+              //    vm.commit();
               break;
             }
             log("==["+Thread.currentThread().getName()+"]== data inserted "+sz);
-          
+            /*
+            if (multigraph)
+              vm = null;
+              */
+            if (delay > 0)
+              Thread.sleep (delay, 0);  
           }
-        
+          vm.commit();
         } catch (Exception e) {
             log("==["+Thread.currentThread().getName()+"]***FAILED Test " + e);
         } finally {

@@ -12,7 +12,7 @@
      "data_dir":  ".",
      "max_threads": 0
   },
-  "data-dir":".",
+  "data-dir":"/mnt/1s1/virtuoso/v8/work/repl/beamery/dumps",
   "data": 
     [ 
       {"file": "xaa.ttl",

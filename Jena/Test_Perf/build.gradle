@@ -22,5 +22,5 @@ dependencies {
 run {
   args = ['-host', 'localhost', '-port', '1111', '-U', 'dba', '-P', 'dba', 
             '-isolation', 'read_committed', '-concurrency', 'default', '-mt', 5,
-            '-count', 200000, '-bs', 1024, '-sleep', 0, '-multigraph']
+            '-count', 60000, '-bs', 1024, '-sleep', 10, '-multigraph']
 }
